@@ -2,6 +2,14 @@
 
 All notable user-facing changes are documented here.
 
+## 1.0.1 — 2026-08-27
+
+Patch release fixing the Settings updater UI.
+
+- Fixed `Check for updates` failing after the automatic first update check with `Cannot set properties of null (setting 'textContent')`.
+- Kept the current-version DOM anchor stable when the update status panel is re-rendered.
+- Hardened the post-update restart path so a missing version element cannot break recovery feedback.
+
 ## 1.0.0 — 2026-08-27
 
 First stable release.
