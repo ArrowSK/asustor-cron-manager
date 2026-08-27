@@ -1,0 +1,46 @@
+name: Bug report
+description: Report a reproducible Cron Manager problem
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please redact real cron commands, tokens, NAS addresses, usernames, and private paths before posting.
+  - type: input
+    id: version
+    attributes:
+      label: Cron Manager version
+      placeholder: 1.0.0
+    validations:
+      required: true
+  - type: input
+    id: adm
+    attributes:
+      label: ADM version and NAS model
+      placeholder: ADM 4.x, ARM64 model
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Click ...
+        3. Observe ...
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs or diagnostics
+      description: Redact private infrastructure details before pasting.
+      render: shell

@@ -1,0 +1,7 @@
+/dist/
+/build/
+*.apk
+*.sha256
+.DS_Store
+/assets/logo.png
+/packaging/apkg/CONTROL/icon.png

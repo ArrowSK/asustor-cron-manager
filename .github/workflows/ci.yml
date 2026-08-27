@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23.x'
+          cache: false
+      - name: Format check
+        run: |
+          test -z "$(gofmt -l .)" || { gofmt -l .; exit 1; }
+      - name: Test
+        run: go test ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Build APKG and self-update binary
+        run: bash scripts/build.sh
+      - name: Inspect APKG
+        run: unzip -l dist/*.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: CronManager-arm64
+          path: |
+            dist/*.apk
+            dist/*.apk.sha256
+            dist/cron-manager_linux_arm64
+            dist/cron-manager_linux_arm64.sha256

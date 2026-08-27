@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cron Manager</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div id="authView" class="auth-shell hidden">
+    <section class="auth-card">
+      <img class="auth-logo" src="/logo.svg" alt="Cron Manager logo">
+      <div class="eyebrow">ASUSTOR ADM</div>
+      <h1 id="authTitle">Cron Manager</h1>
+      <p id="authText">Sign in to manage scheduled tasks on this NAS.</p>
+      <form id="authForm">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" minlength="10" required>
+        <label id="confirmLabel" for="confirmPassword" class="hidden">Confirm password</label>
+        <input id="confirmPassword" class="hidden" name="confirmPassword" type="password" autocomplete="new-password" minlength="10">
+        <button class="button primary wide" type="submit" id="authSubmit">Sign in</button>
+        <p id="authError" class="form-error" aria-live="polite"></p>
+      </form>
+      <div class="auth-foot">Local network only · No cloud service · No telemetry</div>
+    </section>
+  </div>
+
+  <div id="appView" class="app-shell hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="/logo.svg" alt="">
+        <div><strong>Cron Manager</strong><span>for ASUSTOR ADM</span></div>
+      </div>
+      <nav>
+        <button class="nav-item active" data-page="jobs"><span>⌁</span> Scheduled jobs</button>
+        <button class="nav-item" data-page="backups"><span>↺</span> Backups</button>
+        <button class="nav-item" data-page="transfer"><span>⇄</span> Export & import</button>
+        <button class="nav-item" data-page="settings"><span>⚙</span> Settings</button>
+      </nav>
+      <div class="sidebar-foot">
+        <div class="status-dot"></div>
+        <div><strong>Root crontab</strong><span id="versionText">Connected</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <div class="eyebrow">SYSTEM SCHEDULER</div>
+          <h1 id="pageTitle">Scheduled jobs</h1>
+          <p id="pageSubtitle">Manage the real root crontab without losing hand-written entries.</p>
+        </div>
+        <div class="top-actions">
+          <button class="button ghost" id="refreshBtn">Refresh</button>
+          <button class="button primary" id="addBtn">+ New job</button>
+        </div>
+      </header>
+
+      <section id="jobsPage" class="page active">
+        <div class="stat-grid">
+          <article class="stat"><span>Total jobs</span><strong id="totalStat">0</strong><small>visible cron entries</small></article>
+          <article class="stat"><span>Enabled</span><strong id="enabledStat">0</strong><small>scheduled to run</small></article>
+          <article class="stat"><span>Managed</span><strong id="managedStat">0</strong><small>tracked by Cron Manager</small></article>
+          <article class="stat"><span>Imported</span><strong id="importedStat">0</strong><small>preserved as-is</small></article>
+        </div>
+
+        <div class="toolbar">
+          <div class="search-wrap"><span>⌕</span><input id="searchInput" type="search" placeholder="Search jobs, schedules or commands"></div>
+          <select id="filterSelect" aria-label="Filter jobs">
+            <option value="all">All jobs</option>
+            <option value="enabled">Enabled</option>
+            <option value="disabled">Disabled</option>
+            <option value="managed">Managed</option>
+            <option value="imported">Imported</option>
+          </select>
+        </div>
+
+        <div class="panel jobs-panel">
+          <div class="panel-head"><div><strong>Crontab</strong><span>Changes are backed up before they are installed.</span></div><span id="jobCountBadge" class="badge neutral">0 jobs</span></div>
+          <div id="jobsList" class="jobs-list"></div>
+          <div id="emptyState" class="empty hidden"><div class="empty-icon">⌁</div><h3>No matching jobs</h3><p>Create a job or adjust the current filter.</p></div>
+        </div>
+      </section>
+
+      <section id="backupsPage" class="page">
+        <div class="notice"><strong>Automatic safety net.</strong> Cron Manager writes a timestamped copy of the full root crontab before every change and keeps the most recent 50 backups.</div>
+        <div class="panel">
+          <div class="panel-head"><div><strong>Crontab backups</strong><span>Restore replaces the current crontab after first backing it up again.</span></div><button class="button ghost small" id="reloadBackupsBtn">Reload</button></div>
+          <div id="backupList" class="backup-list"></div>
+        </div>
+      </section>
+
+      <section id="transferPage" class="page">
+        <div class="settings-grid">
+          <div class="panel settings-card">
+            <div class="eyebrow">PORTABLE BACKUP</div>
+            <h3>Export jobs</h3>
+            <p>Download a portable JSON file containing jobs managed by Cron Manager. Imported ADM/system entries are deliberately excluded so an export can be safely moved to another NAS.</p>
+            <div class="stack-actions">
+              <button class="button primary" id="exportJobsBtn">Export managed jobs</button>
+              <button class="button ghost" id="exportCrontabBtn">Download full root crontab</button>
+            </div>
+            <div class="notice compact"><strong>Full crontab export is archival only.</strong> It can contain ADM-maintained commands and should not be copied blindly between NAS devices.</div>
+          </div>
+          <div class="panel settings-card">
+            <div class="eyebrow">SAFE RESTORE</div>
+            <h3>Import jobs</h3>
+            <p>Import a Cron Manager JSON export. Raw/system cron lines on this NAS are always preserved.</p>
+            <label>Export file<input id="importFile" type="file" accept="application/json,.json"></label>
+            <label>Import mode<select id="importMode"><option value="merge">Merge with current managed jobs</option><option value="replace-managed">Replace managed jobs only</option></select></label>
+            <p id="importPreview" class="muted-note">Choose an export file to preview it.</p>
+            <button class="button primary" id="importBtn" disabled>Import jobs</button>
+            <p id="importError" class="form-error"></p>
+          </div>
+        </div>
+      </section>
+
+      <section id="settingsPage" class="page">
+        <div class="settings-grid">
+          <div class="panel settings-card"><h3>Security</h3><p>The web UI accepts local/private network clients only and requires a Cron Manager password.</p><form id="passwordForm"><label>Current password</label><input id="currentPassword" type="password" autocomplete="current-password" required><label>New password</label><input id="newPassword" type="password" minlength="10" autocomplete="new-password" required><button class="button primary" type="submit">Change password</button><p id="passwordError" class="form-error"></p></form></div>
+          <div class="panel settings-card">
+            <div class="eyebrow">GITHUB RELEASES</div>
+            <h3>Application updates</h3>
+            <p>Cron Manager can check the official project repository, verify the ARM64 release checksum and replace its own static binary atomically.</p>
+            <div id="updateStatus" class="update-status">Current version: <strong id="currentVersionText">—</strong></div>
+            <div class="stack-actions"><button class="button ghost" id="checkUpdateBtn">Check for updates</button><button class="button primary hidden" id="applyUpdateBtn">Install update</button></div>
+            <p id="updateError" class="form-error"></p>
+          </div>
+          <div class="panel settings-card"><h3>Design principles</h3><ul class="feature-list"><li><span>✓</span>System crontab remains the source of truth.</li><li><span>✓</span>Unknown lines are left byte-for-byte untouched when unrelated jobs are edited.</li><li><span>✓</span>Managed jobs are converted back to plain cron entries on uninstall.</li><li><span>✓</span>No Docker, database, Node.js or cloud dependency.</li></ul><button class="button ghost" id="logoutBtn">Sign out</button></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="editorBackdrop" class="modal-backdrop hidden">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="editorTitle">
+      <div class="modal-head"><div><div class="eyebrow">JOB EDITOR</div><h2 id="editorTitle">New scheduled job</h2></div><button class="icon-button" id="closeEditorBtn" aria-label="Close">×</button></div>
+      <form id="jobForm">
+        <input id="jobId" type="hidden">
+        <label>Job name<input id="jobName" maxlength="120" placeholder="Nightly backup" required></label>
+        <div class="field-row"><label>Preset<select id="presetSelect"><option value="custom">Custom</option><option value="hourly">Hourly</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="reboot">At startup</option></select></label><label>Enabled<select id="jobEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></label></div>
+        <label>Schedule<input id="jobSchedule" class="mono" placeholder="17 * * * *" required><small id="scheduleHelp">Five-field cron syntax or a supported @macro.</small></label>
+        <label>Command<textarea id="jobCommand" class="mono" rows="5" placeholder="/path/to/script.sh --quiet" required></textarea><small>Executed by <code>/bin/sh -c</code> as root. Keep commands on one line.</small></label>
+        <div id="importWarning" class="notice compact hidden"><strong>Imported job.</strong> Saving will adopt only this cron line into a Cron Manager block. Other crontab lines remain untouched.</div>
+        <p id="jobError" class="form-error"></p>
+        <div class="modal-actions"><button type="button" class="button ghost" id="cancelEditorBtn">Cancel</button><button type="submit" class="button primary">Save job</button></div>
+      </form>
+    </section>
+  </div>
+
+  <div id="historyBackdrop" class="modal-backdrop hidden">
+    <section class="modal history-modal" role="dialog" aria-modal="true"><div class="modal-head"><div><div class="eyebrow">EXECUTION HISTORY</div><h2 id="historyTitle">Job history</h2></div><button class="icon-button" id="closeHistoryBtn" aria-label="Close">×</button></div><div id="historyList" class="history-list"></div></section>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="/app.js" defer></script>
+</body>
+</html>

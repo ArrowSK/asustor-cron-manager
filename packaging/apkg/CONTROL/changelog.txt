@@ -1,0 +1,7 @@
+1.0.0
+- First stable release.
+- Safe GUI management of the real root crontab with automatic backups.
+- Portable managed-job export/import and full crontab archival export.
+- Verified in-app updates from official GitHub Releases.
+- Execution history, Run Now, schedule validation, and imported-job preservation.
+- Native static ARM64 binary; no Docker, database, Node.js, PHP, or telemetry.

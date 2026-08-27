@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest a focused improvement
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What operational problem would this feature solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the smallest useful behavior that would solve it.
+    validations:
+      required: true
+  - type: checkboxes
+    id: invariants
+    attributes:
+      label: Design fit
+      options:
+        - label: The real system crontab can remain the source of truth.
+        - label: The proposal does not require a second scheduler.
+        - label: Existing raw ADM/system jobs can remain untouched.
