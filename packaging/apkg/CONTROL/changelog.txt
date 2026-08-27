@@ -1,3 +1,7 @@
+1.0.1
+- Fixed Check for updates failing after the automatic first update check.
+- Hardened updater status and restart feedback DOM handling.
+
 1.0.0
 - First stable release.
 - Safe GUI management of the real root crontab with automatic backups.
