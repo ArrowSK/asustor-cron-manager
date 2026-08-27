@@ -177,15 +177,15 @@ async function checkUpdate(showToast=false) {
   $('#updateError').textContent=''; $('#checkUpdateBtn').disabled=true;
   try {
     const u=await api('/api/update/status'); state.update=u;
-    $('#currentVersionText').textContent=`v${u.currentVersion}`;
+    const currentVersion=$('#currentVersionText'); if(currentVersion) currentVersion.textContent=`v${u.currentVersion}`;
     if(u.updateAvailable){
-      $('#updateStatus').innerHTML=`Current <strong>v${escapeHtml(u.currentVersion)}</strong> · Latest <strong>v${escapeHtml(u.latestVersion)}</strong>`;
+      $('#updateStatus').innerHTML=`Current <strong id="currentVersionText">v${escapeHtml(u.currentVersion)}</strong> · Latest <strong>v${escapeHtml(u.latestVersion)}</strong>`;
       $('#applyUpdateBtn').classList.toggle('hidden',!u.canAutoUpdate);
       $('#applyUpdateBtn').textContent=`Install v${u.latestVersion}`;
       if(!u.canAutoUpdate) $('#updateError').textContent='The release exists, but it does not contain the required verified ARM64 self-update assets.';
       if(showToast) toast(`Cron Manager v${u.latestVersion} is available`);
     } else {
-      $('#updateStatus').innerHTML=`Current version: <strong>v${escapeHtml(u.currentVersion)}</strong> · Up to date`;
+      $('#updateStatus').innerHTML=`Current version: <strong id="currentVersionText">v${escapeHtml(u.currentVersion)}</strong> · Up to date`;
       $('#applyUpdateBtn').classList.add('hidden');
       if(showToast) toast('Cron Manager is up to date');
     }
@@ -211,7 +211,7 @@ async function waitForRestart(expected) {
     await new Promise(r=>setTimeout(r,1800));
     try {
       const st=await api('/api/status');
-      if(st.version===expected){ state.version=st.version; $('#versionText').textContent=`v${st.version}`; $('#currentVersionText').textContent=`v${st.version}`; toast(`Updated to v${st.version}`); $('#applyUpdateBtn').classList.add('hidden'); $('#updateError').textContent=''; return; }
+      if(st.version===expected){ state.version=st.version; $('#versionText').textContent=`v${st.version}`; const currentVersion=$('#currentVersionText'); if(currentVersion) currentVersion.textContent=`v${st.version}`; toast(`Updated to v${st.version}`); $('#applyUpdateBtn').classList.add('hidden'); $('#updateError').textContent=''; return; }
     } catch(_) {}
   }
   $('#updateError').textContent='Update was installed, but the restarted service did not answer in time. Refresh the page or check App Central.';
