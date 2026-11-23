@@ -138,3 +138,37 @@ cat > "$FAKE_CRONTAB"
 		t.Fatalf("unexpected export: %#v", exported)
 	}
 }
+
+func TestStoreWriteUsesBusyBoxStdinMarker(t *testing.T) {
+	dir := t.TempDir()
+	cronFile := filepath.Join(dir, "crontab.txt")
+	if err := os.WriteFile(cronFile, []byte("0 0 * * * /bin/true\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	shim := filepath.Join(dir, "crontab")
+	sh := `#!/bin/sh
+if [ "${1:-}" = "-l" ]; then cat "$FAKE_CRONTAB"; exit 0; fi
+if [ "${1:-}" != "-" ]; then
+  echo "BusyBox crontab requires '-' for stdin" >&2
+  exit 1
+fi
+cat > "$FAKE_CRONTAB"
+`
+	if err := os.WriteFile(shim, []byte(sh), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("FAKE_CRONTAB", cronFile)
+	t.Setenv("PATH", dir+":"+os.Getenv("PATH"))
+
+	store := NewStore(filepath.Join(dir, "backups"), "/runner")
+	if err := store.Write("17 * * * * /bin/echo healthy\n", "test-write"); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(cronFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != "17 * * * * /bin/echo healthy\n" {
+		t.Fatalf("crontab not installed: %q", string(got))
+	}
+}
