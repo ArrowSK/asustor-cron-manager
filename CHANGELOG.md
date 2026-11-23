@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 — 2026-11-23
+
+- Fix crontab installation on ASUSTOR ADM BusyBox by explicitly passing `-` when installing from standard input.
+- Add a regression test that rejects the GNU-style no-argument invocation.
+
 All notable user-facing changes are documented here.
 
 ## 1.0.1 — 2026-08-27

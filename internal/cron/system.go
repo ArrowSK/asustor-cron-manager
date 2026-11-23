@@ -49,7 +49,7 @@ func (s *Store) Write(content, reason string) error {
 	if _, err := s.backupUnlocked(current, reason); err != nil {
 		return err
 	}
-	cmd := exec.Command("crontab")
+	cmd := exec.Command("crontab", "-")
 	cmd.Stdin = strings.NewReader(content)
 	var stderr bytes.Buffer
 	cmd.Stderr = &stderr
